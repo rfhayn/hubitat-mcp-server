@@ -1,129 +1,66 @@
 # Next Implementation Prompt
 
 **Last Updated**: March 12, 2026
-**Status**: M1.1 code complete, PR #1 open, ready for testing
+**Status**: M1.2 and M2 complete. Ready for Raspberry Pi production install.
 
 ---
 
 ## Where We Left Off
 
-All code is built and compiling on branch `feature/M1.1-project-setup` with PR #1 open. Nothing has been tested against a real Hubitat hub yet.
+M1 (full MCP server) and M2 (performance optimizations) are merged to main. Setup script has deployment guidance and systemd/launchd fixes. Ready for first real Pi install.
 
-## Next Steps: Testing & First Run
+## Next Steps: Raspberry Pi Production Install
 
-### Step 1: Set Up Hubitat Maker API (on your hub)
-
-1. Open your Hubitat admin: `http://<your-hub-ip>`
-2. If you **don't** already have Maker API installed:
-   - Go to **Apps** → **Add Built-in App** → **Maker API**
-   - If you **do** have it, go to **Apps** → click **Maker API** to open it
-3. Under **"Allow Endpoint to Control These Devices"**, click **Select Devices** and check all devices you want Claude to control
-4. Scroll down to **"Allow Endpoint to Control Modes, HSM, or Hub Variables"**:
-   - Toggle ON **"Allow control of modes"**
-   - Toggle ON **"Allow control of HSM"**
-   - Optionally click **"Allow endpoint to control these hub variables"** to select any variables you want to expose
-5. Click **Done** at the bottom of the page
-6. Scroll down to the **"Local URLs"** section at the bottom and note:
-   - **App ID** — the number after `/apps/api/` in the endpoint URLs (e.g., in `http://192.168.1.100/apps/api/524/devices?...`, the App ID is `524`)
-   - **Access Token** — the value after `access_token=` in any endpoint URL (e.g., `5c374c9f-081d-493f-ab7e-aa3e1f300a1a`)
-
-### Step 2: Configure the MCP Server
+### Step 1: SSH into the Pi
 
 ```bash
-cd ~/Development/hubitat
-cp .env.example .env
+ssh pi@<pi-ip>
 ```
 
-Edit `.env` with your real values:
-```env
-HUBITAT_HOST=<your-hub-ip>        # e.g., 192.168.1.100
-HUBITAT_APP_ID=<your-app-id>      # e.g., 42
-HUBITAT_ACCESS_TOKEN=<your-token>  # from Maker API page
-MCP_TRANSPORT=http
-MCP_HTTP_PORT=3000
-MCP_AUTH_TOKEN=                     # leave empty for now
-```
-
-### Step 3: Test Hub Connectivity
+### Step 2: Install Node.js 22
 
 ```bash
-# Quick curl test to verify Maker API works
-curl "http://<hub-ip>/apps/api/<app-id>/devices?access_token=<token>"
-# Should return JSON array of your devices
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+node --version  # should show v22.x
 ```
 
-### Step 4: Start the Server Locally
+### Step 3: Clone and Run Setup
 
 ```bash
-export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
-npm start
+git clone https://github.com/rfhayn/hubitat-mcp-server.git
+cd hubitat-mcp-server
+bash setup.sh
 ```
 
-You should see:
-```
-Hubitat MCP server running on http://localhost:3000
-  MCP endpoint: http://localhost:3000/mcp
-  Health check: http://localhost:3000/health
-```
+The setup script will:
+- Install deps and build
+- Ask for Hubitat credentials (hub IP, app ID, token)
+- Test the connection
+- Configure transport (choose HTTP)
+- Set up ngrok (use the same domain as your Mac setup)
+- Write `.env`
+- Offer to install systemd service (say yes)
+- Generate device aliases
 
-Test the health endpoint in another terminal:
+### Step 4: Verify the Service
+
 ```bash
+sudo systemctl status hubitat-mcp
 curl http://localhost:3000/health
-# Should show: connected: true, deviceCount: <number>
 ```
 
-### Step 5: Connect Claude Code (stdio — simplest first test)
+### Step 5: Connect Claude Code on Mac
 
-Stop the HTTP server (Ctrl+C), then:
+Run the `claude mcp add` command printed at the end of Pi setup. The ngrok domain is the same one already configured.
 
-```bash
-export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
-claude mcp add hubitat --transport stdio -- node ~/Development/hubitat/dist/index.js
-```
+## After Pi Install
 
-Then open Claude Code and try:
-- "list my hubitat devices"
-- "what's the current hub mode?"
-- "turn on the kitchen light" (use a real device name)
-- "what's the HSM status?"
+- Stop the local Mac server (no longer needed)
+- Verify Claude.ai and Claude mobile still work via ngrok
+- Test the server survives a Pi reboot: `sudo reboot`
+- Check logs: `sudo journalctl -u hubitat-mcp -f`
 
-### Step 6: Test ngrok (when ready for remote access)
+## Future Milestones
 
-1. Sign up (free tier) at https://dashboard.ngrok.com/signup — complete the onboarding survey (any answers work)
-2. Copy your authtoken from **Getting Started → Your Authtoken**: https://dashboard.ngrok.com/get-started/your-authtoken
-   - **Not** the "Authtokens" page under Universal Gateway — that shows a different, shorter credential ID
-3. Claim a free static domain from **Universal Gateway → Domains**: https://dashboard.ngrok.com/domains
-4. Add to `.env`:
-   ```
-   NGROK_AUTHTOKEN=<your-token>
-   NGROK_DOMAIN=<your-name>.ngrok-free.app
-   ```
-5. Run `npm start` — tunnel URL prints to console
-6. Add to Claude.ai: Settings → Connectors → scroll to bottom → **Add custom connector** → name it "Hubitat" → paste URL
-
-### Step 7: Merge PR & Update Docs
-
-Once testing passes:
-```bash
-# Merge PR #1
-gh pr merge 1 --squash
-
-# Update docs
-git checkout main && git pull
-```
-
----
-
-## Important Notes
-
-- **Node.js path**: You installed Node 22 via Homebrew. It's at `/opt/homebrew/opt/node@22/bin`. This was added to `~/.zshrc` but you may need to open a new terminal or run `source ~/.zshrc` for it to take effect.
-- **PR #1**: https://github.com/rfhayn/hubitat-mcp-server/pull/1
-- **Branch**: `feature/M1.1-project-setup`
-- All code builds and tests pass (`npm run build && npm test`)
-
-## After Testing Works
-
-- Run `./setup.sh` to test the interactive setup experience
-- Test device aliasing (check `devices.json` after setup)
-- Test the home context resource in Claude ("read hubitat://home-context")
-- Consider deploying to Raspberry Pi
+- M3: Event streaming (webhooks, EventSocket)

@@ -6,19 +6,10 @@
 
 | Milestone | Name | Status |
 |-----------|------|--------|
-| M1 | MCP Server Foundation | ACTIVE |
-| M1.1 | Project setup (package.json, tsconfig, MCP SDK, CLI) | READY |
-| M1.2 | Hubitat Maker API client (typed HTTP client) | PLANNED |
-| M1.3 | MCP tools (devices, modes, HSM, variables) | PLANNED |
-| M1.4 | MCP resources (devices, status, home context) | PLANNED |
-| M1.5 | Dual transport (stdio + HTTP) + ngrok integration | PLANNED |
-| M1.6 | Auth layer + health endpoint | PLANNED |
-| M1.7 | Device aliasing + auto-generated context | PLANNED |
-| M1.8 | Setup script (interactive setup, Claude config output) | PLANNED |
-| M1.9 | Deployment (systemd, launchd, Docker) | PLANNED |
-| M1.10 | npm publish + npx support | PLANNED |
-| M1.11 | README with Hubitat Maker API setup guide | PLANNED |
-| M2 | Enhanced features (retry, caching, batch) | PLANNED |
+| M1 | MCP Server Foundation | COMPLETE |
+| M1.1 | Full server — tools, resources, transports, ngrok, setup, CLI, README | COMPLETE |
+| M1.2 | Setup deployment guidance + systemd/launchd production fixes | COMPLETE |
+| M2 | Device cache, bulk query tools, retry logic | COMPLETE |
 | M3 | Event streaming (webhooks, EventSocket) | PLANNED |
 
 ## Notes

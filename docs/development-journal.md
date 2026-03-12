@@ -4,6 +4,26 @@ Narrative session entries capturing decisions, learning, and AI tooling observat
 
 ---
 
+### Session 4 — March 12, 2026 — M1.2 & M2 Production Hardening
+
+**What happened**: Added deployment guidance to setup.sh, fixed two critical production blockers (systemd env loading, missing logs directory), and iterated on UX. Started with a two-option menu for deployment host selection, then simplified to a question-based flow after user feedback. Audited the full project for Raspberry Pi fresh-install readiness.
+
+**Key decisions**:
+- Replaced two-option deployment menu with contextual questions — simpler UX that guides macOS users toward always-on devices without forcing everyone through a branching flow
+- Added `EnvironmentFile=-` directive to systemd service template — without this, the Pi service starts with no env vars and crashes immediately (dotenv in Node.js can't reliably load .env under systemd)
+- Added `mkdir -p logs` to setup.sh — macOS launchd template references log paths that don't exist on a fresh clone
+
+**Learning**:
+- Systemd services don't inherit shell environment or source .env files — `EnvironmentFile=` is the correct mechanism. The `-` prefix makes it non-fatal if missing
+- The two-option "choose your adventure" pattern in CLI tools is often worse than progressive disclosure through targeted questions — users don't want to read all options upfront
+- Production readiness auditing from a "fresh clone" perspective catches issues that incremental development misses (like the systemd env loading gap)
+
+**AI tooling observations**: Used an Explore agent to audit the full project for Pi-readiness — it systematically checked systemd templates, entry points, dependencies, and .gitignore in one pass. Caught both critical blockers that would have been silent failures on first Pi install.
+
+**What's next**: Push to main, SSH into the Pi, and do a real end-to-end production install test.
+
+---
+
 ### Session 1 — March 12, 2026 — Project Bootstrap
 
 **What happened**: Scaffolded the Hubitat MCP project with the development framework adapted from forager. Set up git repo, CLAUDE.md, 9 skills, and 7 core documentation files.
