@@ -23,7 +23,9 @@
       "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm install 2>&1)",
       "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm run build 2>&1)",
       "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm test 2>&1)",
-      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && git add package.json package-lock.json tsconfig.json vitest.config.ts .env.example .claude/settings.local.json src/)"
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && git add package.json package-lock.json tsconfig.json vitest.config.ts .env.example .claude/settings.local.json src/)",
+      "Bash(chmod +x /Users/rich/Development/hubitat/setup.sh)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm run build 2>&1 && npm test 2>&1)"
     ]
   }
 }

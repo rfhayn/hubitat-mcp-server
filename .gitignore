@@ -9,3 +9,6 @@ dist/
 .env.local
 coverage/
 .DS_Store
+devices.json
+logs/
+com.hubitat-mcp.plist

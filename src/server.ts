@@ -6,6 +6,7 @@ import { registerHsmTools } from './tools/hsm.js';
 import { registerVariableTools } from './tools/variables.js';
 import { registerDeviceResources } from './resources/devices.js';
 import { registerStatusResources } from './resources/status.js';
+import { registerContextResources } from './resources/context.js';
 import type { HubitatConfig } from './hubitat/types.js';
 
 export function createServer(config: HubitatConfig): {
@@ -28,6 +29,7 @@ export function createServer(config: HubitatConfig): {
   // Register all resources
   registerDeviceResources(server, client);
   registerStatusResources(server, client);
+  registerContextResources(server, client);
 
   return { server, client };
 }
