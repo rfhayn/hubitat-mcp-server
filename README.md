@@ -24,14 +24,14 @@ The setup script walks you through everything: Hubitat credentials, ngrok config
 
 ## Prerequisites
 
-### 1. Node.js 20+
+### 1. Node.js 20+ and Git
 
 ```bash
 # macOS
-brew install node@22
+brew install node@22 git
 
 # Raspberry Pi / Linux
-sudo apt install nodejs npm
+sudo apt update && sudo apt install -y nodejs npm git
 ```
 
 ### 2. Hubitat Maker API
