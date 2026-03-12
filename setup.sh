@@ -83,6 +83,8 @@ if [ ! -d "dist" ]; then
 fi
 print_step "TypeScript compiled"
 
+mkdir -p "${SCRIPT_DIR}/logs"
+
 # ─── Hubitat Configuration ───────────────────────────
 print_header "Hubitat Maker API Configuration"
 echo ""

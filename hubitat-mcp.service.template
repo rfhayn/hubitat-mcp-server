@@ -10,6 +10,7 @@ WorkingDirectory=__PROJECT_DIR__
 ExecStart=__NODE_PATH__ __PROJECT_DIR__/dist/index.js
 Restart=always
 RestartSec=5
+EnvironmentFile=-__PROJECT_DIR__/.env
 Environment=NODE_ENV=production
 
 [Install]
