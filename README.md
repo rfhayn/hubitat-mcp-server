@@ -15,6 +15,13 @@ A TypeScript [MCP](https://modelcontextprotocol.io) server that lets Claude cont
 ## Quick Start
 
 ```bash
+# 1. Install prerequisites
+# macOS
+brew install node@22 git
+# Raspberry Pi / Linux
+sudo apt update && sudo apt install -y nodejs npm git
+
+# 2. Clone and run setup
 git clone https://github.com/rfhayn/hubitat-mcp-server.git
 cd hubitat-mcp-server
 ./setup.sh
