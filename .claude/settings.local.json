@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:community.hubitat.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.hubitat.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:claude.ai)",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(git add:*)"
     ]
   }
 }
