@@ -5,6 +5,7 @@ export interface HubitatDevice {
   name: string;
   label: string;
   type: string;
+  room?: string;
   model?: string;
   manufacturer?: string;
   capabilities: string[];
@@ -17,6 +18,7 @@ export interface HubitatDeviceSummary {
   name: string;
   label: string;
   type: string;
+  room?: string;
 }
 
 export interface HubitatAttribute {
