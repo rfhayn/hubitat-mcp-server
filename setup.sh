@@ -24,64 +24,33 @@ echo "  Hubitat MCP Server — Setup"
 echo "═══════════════════════════════════════════════════"
 echo ""
 
-# ─── Deployment Host Selection ────────────────────────
-print_header "Where will this server run?"
+# ─── Deployment Guidance ──────────────────────────────
+print_header "Before we start"
 echo ""
-echo "  The MCP server needs to be running 24/7 for Claude to"
-echo "  control your home from anywhere (phone, web, desktop)."
+echo "  The MCP server needs to run 24/7 for Claude to control"
+echo "  your home from anywhere (phone, web, desktop)."
 echo ""
-echo "  ${GREEN}RECOMMENDED: Raspberry Pi or always-on device${NC}"
-echo "    Any Pi 3B+ or newer, or similar Linux SBC. Low power,"
-echo "    always available, runs on your local network next to"
-echo "    the hub. This is the ideal setup."
+echo "  ${GREEN}Best: Raspberry Pi, Mac mini, NAS, or always-on Linux box${NC}"
+echo "  ${YELLOW}OK for testing: A laptop that may sleep or close${NC}"
 echo ""
-echo "  ${YELLOW}Also works: Mac mini, NAS, old laptop, any Linux box${NC}"
-echo "    Anything that stays on and connected to your network."
-echo ""
-echo "  ${RED}Not ideal: Your daily MacBook/PC${NC}"
-echo "    Works for testing, but the server stops when you"
-echo "    close the lid or sleep. Fine for Claude Code (local),"
-echo "    but Claude mobile/web will lose access."
-echo ""
-echo "  [1] This machine (continue setup here)"
-echo "  [2] A Raspberry Pi or other remote device (show setup instructions)"
-echo ""
-print_prompt "Where will the server run? [1]: "
-read -r DEPLOY_CHOICE
-DEPLOY_CHOICE=${DEPLOY_CHOICE:-1}
-
-if [ "$DEPLOY_CHOICE" = "2" ]; then
-    echo ""
-    echo "  ── Remote Setup Instructions ─────────────────────"
-    echo ""
-    echo "  On your Raspberry Pi (or other always-on device):"
-    echo ""
-    echo "    1. Install Node.js 20+:"
-    echo "         curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -"
-    echo "         sudo apt install -y nodejs"
-    echo ""
-    echo "    2. Clone and set up:"
-    echo "         git clone https://github.com/rfhayn/hubitat-mcp-server.git"
-    echo "         cd hubitat-mcp-server"
-    echo "         bash setup.sh"
-    echo ""
-    echo "    3. When setup asks 'Where will this server run?',"
-    echo "       choose [1] (this machine). It will then offer to"
-    echo "       install a systemd service that auto-starts on boot"
-    echo "       and restarts if it crashes — say yes to that."
-    echo ""
-    echo "  After setup completes on the Pi, come back to THIS"
-    echo "  machine and run:"
-    echo "    claude mcp add hubitat --transport http https://<your-ngrok-domain>/mcp"
-    echo ""
-    echo "═══════════════════════════════════════════════════"
-    exit 0
-fi
 
 if [[ "$(uname)" == "Darwin" ]]; then
-    print_warn "You're on macOS — consider installing the launchd service later"
-    echo "    to auto-restart the server after reboot."
-    echo ""
+    print_prompt "Does this Mac stay on 24/7? [y/N]: "
+    read -r MAC_ALWAYS_ON
+    if [[ ! "$MAC_ALWAYS_ON" =~ ^[Yy]$ ]]; then
+        echo ""
+        print_warn "For always-on access, run this setup on a Raspberry Pi"
+        echo "    or other device that stays on. SSH in and run:"
+        echo "      git clone https://github.com/rfhayn/hubitat-mcp-server.git"
+        echo "      cd hubitat-mcp-server && bash setup.sh"
+        echo ""
+        print_prompt "Continue setup on this Mac anyway? [y/N]: "
+        read -r CONTINUE_MAC
+        if [[ ! "$CONTINUE_MAC" =~ ^[Yy]$ ]]; then
+            exit 0
+        fi
+        echo ""
+    fi
 fi
 
 # ─── Check Node.js ────────────────────────────────────
