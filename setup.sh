@@ -24,6 +24,35 @@ echo "  Hubitat MCP Server — Setup"
 echo "═══════════════════════════════════════════════════"
 echo ""
 
+# ─── Deployment Guidance ──────────────────────────────
+print_header "Before we start"
+echo ""
+echo "  The MCP server needs to run 24/7 for Claude to control"
+echo "  your home from anywhere (phone, web, desktop)."
+echo ""
+echo "  ${GREEN}Best: Raspberry Pi, Mac mini, NAS, or always-on Linux box${NC}"
+echo "  ${YELLOW}OK for testing: A laptop that may sleep or close${NC}"
+echo ""
+
+if [[ "$(uname)" == "Darwin" ]]; then
+    print_prompt "Does this Mac stay on 24/7? [y/N]: "
+    read -r MAC_ALWAYS_ON
+    if [[ ! "$MAC_ALWAYS_ON" =~ ^[Yy]$ ]]; then
+        echo ""
+        print_warn "For always-on access, run this setup on a Raspberry Pi"
+        echo "    or other device that stays on. SSH in and run:"
+        echo "      git clone https://github.com/rfhayn/hubitat-mcp-server.git"
+        echo "      cd hubitat-mcp-server && bash setup.sh"
+        echo ""
+        print_prompt "Continue setup on this Mac anyway? [y/N]: "
+        read -r CONTINUE_MAC
+        if [[ ! "$CONTINUE_MAC" =~ ^[Yy]$ ]]; then
+            exit 0
+        fi
+        echo ""
+    fi
+fi
+
 # ─── Check Node.js ────────────────────────────────────
 if ! command -v node &>/dev/null; then
     print_error "Node.js not found. Install Node.js 20+ first:"

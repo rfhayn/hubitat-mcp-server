@@ -7,32 +7,81 @@ import type {
   HubitatMode,
   HubitatVariable,
 } from './types.js';
+import { DeviceCache } from './cache.js';
+
+const MAX_RETRIES = 2;
+const BACKOFF_BASE_MS = 1000;
+const BACKOFF_CAP_MS = 5000;
+
+function isRetryable(error: unknown): boolean {
+  // Network errors (fetch throws TypeError for connection failures)
+  if (error instanceof TypeError) return true;
+
+  // 5xx errors surfaced as our Error with status in the message
+  if (error instanceof Error && /Hubitat API error: 5\d\d/.test(error.message)) {
+    return true;
+  }
+
+  return false;
+}
 
 export class HubitatClient {
   private readonly baseUrl: string;
   private readonly accessToken: string;
+  private readonly cache: DeviceCache;
 
-  constructor(config: HubitatConfig) {
+  constructor(config: HubitatConfig, cacheTtlMs?: number) {
     const host = config.host.replace(/\/$/, '');
     const protocol = host.startsWith('http') ? '' : 'http://';
     this.baseUrl = `${protocol}${host}/apps/api/${config.appId}`;
     this.accessToken = config.accessToken;
+    this.cache = new DeviceCache(cacheTtlMs);
   }
 
   private async request<T>(path: string): Promise<T> {
     const separator = path.includes('?') ? '&' : '?';
     const url = `${this.baseUrl}${path}${separator}access_token=${this.accessToken}`;
 
-    const response = await fetch(url);
+    let lastError: unknown;
 
-    if (!response.ok) {
-      const body = await response.text().catch(() => 'unknown');
-      throw new Error(
-        `Hubitat API error: ${response.status} ${response.statusText} — ${body}`
-      );
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      if (attempt > 0) {
+        const delayMs = Math.min(BACKOFF_BASE_MS * attempt, BACKOFF_CAP_MS);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          const body = await response.text().catch(() => 'unknown');
+          const error = new Error(
+            `Hubitat API error: ${response.status} ${response.statusText} — ${body}`
+          );
+
+          // Only retry on 5xx, not 4xx
+          if (response.status >= 500 && attempt < MAX_RETRIES) {
+            lastError = error;
+            continue;
+          }
+
+          throw error;
+        }
+
+        return response.json() as Promise<T>;
+      } catch (error) {
+        lastError = error;
+
+        if (attempt < MAX_RETRIES && isRetryable(error)) {
+          continue;
+        }
+
+        throw error;
+      }
     }
 
-    return response.json() as Promise<T>;
+    // Should not reach here, but satisfies TypeScript
+    throw lastError;
   }
 
   // Device endpoints
@@ -42,10 +91,24 @@ export class HubitatClient {
   }
 
   async getAllDevices(): Promise<HubitatDevice[]> {
-    return this.request<HubitatDevice[]>('/devices/all');
+    const cached = this.cache.get();
+    if (cached !== null) {
+      return cached;
+    }
+
+    const devices = await this.request<HubitatDevice[]>('/devices/all');
+    this.cache.set(devices);
+    return devices;
   }
 
   async getDevice(deviceId: string): Promise<HubitatDevice> {
+    // Try to serve from the all-devices cache first
+    const cached = this.cache.get();
+    if (cached !== null) {
+      const device = cached.find((d) => d.id === deviceId);
+      if (device) return device;
+    }
+
     return this.request<HubitatDevice>(`/devices/${deviceId}`);
   }
 
@@ -61,7 +124,10 @@ export class HubitatClient {
     const path = secondaryValue
       ? `/devices/${deviceId}/${command}/${secondaryValue}`
       : `/devices/${deviceId}/${command}`;
-    return this.request<unknown>(path);
+    const result = await this.request<unknown>(path);
+    // Invalidate cache — device state has changed
+    this.cache.invalidate();
+    return result;
   }
 
   // Mode endpoints

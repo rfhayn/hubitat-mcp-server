@@ -104,7 +104,8 @@ export async function generateHomeContext(client: HubitatClient): Promise<string
     lines.push(`${category}:`);
     for (const device of categoryDevices) {
       const state = formatDeviceState(device);
-      lines.push(`  - "${device.label || device.name}" (id: ${device.id}) — ${state}`);
+      const roomTag = device.room ? ` [${device.room}]` : '';
+      lines.push(`  - "${device.label || device.name}" (id: ${device.id})${roomTag} — ${state}`);
     }
     lines.push('');
   }
