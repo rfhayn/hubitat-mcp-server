@@ -41,3 +41,30 @@ Narrative session entries capturing decisions, learning, and AI tooling observat
 **AI tooling observations**: Used 3 parallel Explore agents to research Maker API docs, community repos, and hosting/transport options simultaneously. Effective for broad research — each agent returned comprehensive findings in ~30-60 seconds.
 
 **What's next**: Start M1.1 — project setup (package.json, tsconfig, MCP SDK, CLI entry point).
+
+---
+
+### Session 3 — March 12, 2026 — M1.1 Testing & First Run
+
+**What happened**: Walked through the full testing flow step-by-step against a real Hubitat hub (192.168.50.188, 150 devices). Validated and corrected setup instructions at each step. Fixed multiple bugs discovered during testing. Successfully tested stdio (Claude Code CLI), HTTP (localhost), and ngrok remote access (Claude.ai + mobile).
+
+**Key decisions**:
+- Added `--stdio`/`--http` CLI flags to override `MCP_TRANSPORT` env var — needed because `.env` defaults to `http` but Claude Code launches as stdio
+- Changed Streamable HTTP to stateless per-request pattern (new server+transport per request) per MCP SDK examples — original single-server approach caused "Already connected" crash on second request
+- Removed inline comments from `.env` and `.env.example` — they break `source .env` in bash scripts
+
+**Bugs fixed**:
+1. `.env` inline comments broke shell sourcing (Node dotenv handled them fine, but shell scripts didn't)
+2. No CLI transport override — stdio MCP failed when `.env` set `MCP_TRANSPORT=http`
+3. HTTP transport crashed on second request — was reusing single server instance instead of creating per-request
+4. ngrok authtoken instructions pointed to wrong dashboard page ("Authtokens" under Universal Gateway shows `cr_` credential ID, not the tunnel authtoken)
+
+**Learning**:
+- MCP SDK's `Server.connect()` binds to exactly one transport — for stateless HTTP you must create a fresh server+transport per request and clean up on `res.close`
+- ngrok dashboard has two confusingly-named token pages: "Authtokens" (credential IDs) vs "Your Authtoken" (tunnel token)
+- Asking "what doors are open?" generated 15 individual `get_device` calls — bulk query by capability is an M2 optimization
+- Claude.ai custom connectors support authless MCP servers — no OAuth required
+
+**AI tooling observations**: Step-by-step user walkthrough is an effective way to validate both code AND documentation simultaneously. Every step surfaced at least one correction to the instructions.
+
+**What's next**: Merge PR #1, mark M1.1 COMPLETE, begin M1.2 (Hubitat Maker API typed client).

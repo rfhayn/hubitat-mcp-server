@@ -33,7 +33,7 @@ async function startStdio(): Promise<void> {
 
 async function startHttp(): Promise<void> {
   const config = getConfig();
-  const { server, client } = createServer(config);
+  const { client } = createServer(config);
   const port = parseInt(process.env.MCP_HTTP_PORT || '3000', 10);
   const authToken = process.env.MCP_AUTH_TOKEN;
 
@@ -58,11 +58,16 @@ async function startHttp(): Promise<void> {
       }
     }
 
-    // MCP endpoint
+    // MCP endpoint — stateless: new server+transport per request
     if (req.url === '/mcp' || req.url?.startsWith('/mcp')) {
+      const { server: reqServer } = createServer(config);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-      await server.connect(transport);
+      await reqServer.connect(transport);
       await transport.handleRequest(req, res);
+      res.on('close', () => {
+        transport.close();
+        reqServer.close();
+      });
       return;
     }
 
@@ -98,7 +103,11 @@ async function startHttp(): Promise<void> {
   }
 }
 
-const transport = process.env.MCP_TRANSPORT || 'stdio';
+// CLI flag --stdio or --http overrides MCP_TRANSPORT env var
+const cliTransport = process.argv.includes('--stdio') ? 'stdio'
+  : process.argv.includes('--http') ? 'http'
+  : undefined;
+const transport = cliTransport || process.env.MCP_TRANSPORT || 'stdio';
 
 if (transport === 'stdio') {
   startStdio().catch((err) => {

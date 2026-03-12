@@ -14,15 +14,18 @@ All code is built and compiling on branch `feature/M1.1-project-setup` with PR #
 ### Step 1: Set Up Hubitat Maker API (on your hub)
 
 1. Open your Hubitat admin: `http://<your-hub-ip>`
-2. Go to **Apps** → **Add Built-in App** → **Maker API**
-3. Select ALL devices you want Claude to control
-4. Check **"Allow control of modes"**
-5. Check **"Allow control of HSM"**
-6. Add any hub variables you want to expose
-7. Click **Done**
-8. On the Maker API app page, note down:
-   - **App ID** (number in the URL, e.g., `42`)
-   - **Access Token** (long string at bottom of page)
+2. If you **don't** already have Maker API installed:
+   - Go to **Apps** → **Add Built-in App** → **Maker API**
+   - If you **do** have it, go to **Apps** → click **Maker API** to open it
+3. Under **"Allow Endpoint to Control These Devices"**, click **Select Devices** and check all devices you want Claude to control
+4. Scroll down to **"Allow Endpoint to Control Modes, HSM, or Hub Variables"**:
+   - Toggle ON **"Allow control of modes"**
+   - Toggle ON **"Allow control of HSM"**
+   - Optionally click **"Allow endpoint to control these hub variables"** to select any variables you want to expose
+5. Click **Done** at the bottom of the page
+6. Scroll down to the **"Local URLs"** section at the bottom and note:
+   - **App ID** — the number after `/apps/api/` in the endpoint URLs (e.g., in `http://192.168.1.100/apps/api/524/devices?...`, the App ID is `524`)
+   - **Access Token** — the value after `access_token=` in any endpoint URL (e.g., `5c374c9f-081d-493f-ab7e-aa3e1f300a1a`)
 
 ### Step 2: Configure the MCP Server
 
@@ -86,16 +89,17 @@ Then open Claude Code and try:
 
 ### Step 6: Test ngrok (when ready for remote access)
 
-1. Sign up at https://dashboard.ngrok.com/signup
-2. Copy authtoken from https://dashboard.ngrok.com/authtokens
-3. Claim free static domain from https://dashboard.ngrok.com/domains
+1. Sign up (free tier) at https://dashboard.ngrok.com/signup — complete the onboarding survey (any answers work)
+2. Copy your authtoken from **Getting Started → Your Authtoken**: https://dashboard.ngrok.com/get-started/your-authtoken
+   - **Not** the "Authtokens" page under Universal Gateway — that shows a different, shorter credential ID
+3. Claim a free static domain from **Universal Gateway → Domains**: https://dashboard.ngrok.com/domains
 4. Add to `.env`:
    ```
    NGROK_AUTHTOKEN=<your-token>
    NGROK_DOMAIN=<your-name>.ngrok-free.app
    ```
 5. Run `npm start` — tunnel URL prints to console
-6. Add to Claude.ai: Settings → Connectors → Add MCP Server → paste URL
+6. Add to Claude.ai: Settings → Connectors → scroll to bottom → **Add custom connector** → name it "Hubitat" → paste URL
 
 ### Step 7: Merge PR & Update Docs
 
