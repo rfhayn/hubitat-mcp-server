@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.js
+*.d.ts
+*.js.map
+!jest.config.js
+!vitest.config.js
+.env
+.env.local
+coverage/
+.DS_Store
