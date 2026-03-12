@@ -1,0 +1,42 @@
+{
+  "name": "hubitat-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Hubitat Elevation home automation via Maker API",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "hubitat-mcp": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "hubitat",
+    "mcp",
+    "model-context-protocol",
+    "home-automation",
+    "smart-home",
+    "claude"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@ngrok/ngrok": "^1.4.1",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

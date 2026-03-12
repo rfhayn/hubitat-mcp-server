@@ -1,0 +1,16 @@
+[Unit]
+Description=Hubitat MCP Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__PROJECT_DIR__
+ExecStart=__NODE_PATH__ __PROJECT_DIR__/dist/index.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

@@ -146,6 +146,7 @@ Claude Code mobile + Claude.ai can ONLY connect to MCP servers via **HTTP transp
 - Device attribute caching with TTL
 - Batch command execution (parallel)
 - Device grouping/filtering by capability or room
+- Bulk device status query (e.g., `get_devices_by_capability("ContactSensor")`) — observed "what doors are open?" generating 15 individual `get_device` calls during M1.1 testing
 
 ### Tier 3: Advanced
 - Real-time event streaming via webhooks

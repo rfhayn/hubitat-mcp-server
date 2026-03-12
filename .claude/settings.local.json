@@ -8,7 +8,24 @@
       "WebFetch(domain:docs.anthropic.com)",
       "WebFetch(domain:claude.ai)",
       "WebFetch(domain:developers.cloudflare.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\" && which npm && npm --version)",
+      "Read(//usr/local/bin/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//Users/rich/.nvm/versions/**)",
+      "Bash(env)",
+      "Bash(brew install:*)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && node --version && npm --version)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm install 2>&1)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm run build 2>&1)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm test 2>&1)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && git add package.json package-lock.json tsconfig.json vitest.config.ts .env.example .claude/settings.local.json src/)",
+      "Bash(chmod +x /Users/rich/Development/hubitat/setup.sh)",
+      "Bash(export PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" && npm run build 2>&1 && npm test 2>&1)"
     ]
   }
 }
