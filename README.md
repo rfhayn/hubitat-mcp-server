@@ -14,14 +14,19 @@ A TypeScript [MCP](https://modelcontextprotocol.io) server that lets Claude cont
 
 ## Quick Start
 
+**macOS:**
 ```bash
-# 1. Install prerequisites
-# macOS
 brew install node@22 git
-# Raspberry Pi / Linux
-sudo apt update && sudo apt install -y nodejs npm git
+git clone https://github.com/rfhayn/hubitat-mcp-server.git
+cd hubitat-mcp-server
+./setup.sh
+```
 
-# 2. Clone and run setup
+**Raspberry Pi / Linux:**
+```bash
+sudo apt update && sudo apt install -y git
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
 git clone https://github.com/rfhayn/hubitat-mcp-server.git
 cd hubitat-mcp-server
 ./setup.sh
@@ -33,12 +38,16 @@ The setup script walks you through everything: Hubitat credentials, ngrok config
 
 ### 1. Node.js 20+ and Git
 
+**macOS:**
 ```bash
-# macOS
 brew install node@22 git
+```
 
-# Raspberry Pi / Linux
-sudo apt update && sudo apt install -y nodejs npm git
+**Raspberry Pi / Linux:**
+```bash
+sudo apt update && sudo apt install -y git
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
 ```
 
 ### 2. Hubitat Maker API
