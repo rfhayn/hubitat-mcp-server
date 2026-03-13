@@ -4,6 +4,30 @@ Narrative session entries capturing decisions, learning, and AI tooling observat
 
 ---
 
+### Session 5 — March 12, 2026 — First Raspberry Pi Production Install
+
+**What happened**: Ran the full setup.sh on a Raspberry Pi as a first-time user, hitting every rough edge along the way. Fixed git not being listed as a prerequisite, color codes not rendering on Linux, a 401 auth failure from pasting tokens silently, the setup telling users to run `npm start` when systemd was already running, and the auth token blocking Claude.ai/mobile (which don't support custom headers). Ended with a successful end-to-end test: Claude on the phone controlling the smart home via the Pi.
+
+**Key decisions**:
+- Split README Quick Start into separate macOS and Linux blocks — a single code block with comments for both platforms confused real users on a Pi
+- Added connection retry loop with re-prompting — when credentials fail, loop back and ask for all three inputs again instead of just "continue anyway?"
+- Added "(input hidden)" hint to silent `read -rs` prompts — users thought paste was broken when no characters appeared
+- Used `systemctl restart` instead of `start` for idempotent re-runs
+- Cleared `MCP_AUTH_TOKEN` on Pi — Claude.ai/mobile connectors don't support auth headers, so the Mac had been running without one all along. The ngrok URL's obscurity provides basic security
+
+**Learning**:
+- `echo` without `-e` prints raw escape codes on some systems — the deployment guidance section used `echo` with color variables but needed `echo -e` (other sections worked because they used helper functions that already had `-e`)
+- Claude.ai and Claude mobile connectors do NOT support custom auth headers — only bare URLs or OAuth. This means any MCP server accessed from mobile must either be authless or use OAuth
+- README Quick Start must be copy-pasteable per platform — mixing `brew` and `apt` in one block with comments doesn't work for real users
+- `sudo apt install nodejs` on Raspberry Pi OS gives Node.js 12-18 depending on OS version — must use NodeSource (`nodesource.com/setup_22.x`) to get Node 22
+- The best way to find setup UX bugs is to be the user on a fresh machine. Every step surfaced at least one issue
+
+**AI tooling observations**: This session was entirely driven by real-time user feedback from the Pi install. Claude Code on the Mac acted as a rapid-response fix pipeline — user reports issue on Pi, fix is committed and pushed within 60 seconds, user does `git pull` and retries. This tight loop (report → fix → push → pull → retry) was extremely effective for polishing a setup script.
+
+**What's next**: Consider OAuth support for Claude.ai/mobile auth. Monitor Pi stability over the next few days. Decide whether M3 (event streaming) is worth pursuing or if the project is feature-complete.
+
+---
+
 ### Session 4 — March 12, 2026 — M1.2 & M2 Production Hardening
 
 **What happened**: Added deployment guidance to setup.sh, fixed two critical production blockers (systemd env loading, missing logs directory), and iterated on UX. Started with a two-option menu for deployment host selection, then simplified to a question-based flow after user feedback. Audited the full project for Raspberry Pi fresh-install readiness.
