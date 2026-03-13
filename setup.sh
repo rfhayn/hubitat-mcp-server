@@ -30,8 +30,8 @@ echo ""
 echo "  The MCP server needs to run 24/7 for Claude to control"
 echo "  your home from anywhere (phone, web, desktop)."
 echo ""
-echo "  ${GREEN}Best: Raspberry Pi, Mac mini, NAS, or always-on Linux box${NC}"
-echo "  ${YELLOW}OK for testing: A laptop that may sleep or close${NC}"
+echo -e "  ${GREEN}Best: Raspberry Pi, Mac mini, NAS, or always-on Linux box${NC}"
+echo -e "  ${YELLOW}OK for testing: A laptop that may sleep or close${NC}"
 echo ""
 
 if [[ "$(uname)" == "Darwin" ]]; then
