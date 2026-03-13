@@ -111,7 +111,7 @@ while true; do
     print_prompt "Maker API App ID: "
     read -r HUBITAT_APP_ID
 
-    print_prompt "Maker API Access Token: "
+    print_prompt "Maker API Access Token (input hidden): "
     read -rs HUBITAT_ACCESS_TOKEN
     echo ""
 
@@ -194,7 +194,7 @@ if [ "$MCP_TRANSPORT" = "http" ]; then
         echo "    2. Copy your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken"
         echo "       (NOT the 'Authtokens' page under Universal Gateway — that shows a different token)"
         echo ""
-        print_prompt "ngrok authtoken: "
+        print_prompt "ngrok authtoken (input hidden): "
         read -rs NGROK_AUTHTOKEN
         echo ""
 
@@ -245,6 +245,7 @@ if [ "$MCP_TRANSPORT" = "http" ]; then
             sed "s|__PROJECT_DIR__|${SCRIPT_DIR}|g; s|__NODE_PATH__|${NODE_PATH}|g" \
                 com.hubitat-mcp.plist.template > com.hubitat-mcp.plist 2>/dev/null || true
             if [ -f "com.hubitat-mcp.plist" ]; then
+                launchctl unload ~/Library/LaunchAgents/com.hubitat-mcp.plist 2>/dev/null || true
                 cp com.hubitat-mcp.plist ~/Library/LaunchAgents/
                 launchctl load ~/Library/LaunchAgents/com.hubitat-mcp.plist 2>/dev/null || true
                 SERVICE_INSTALLED="launchd"
@@ -264,7 +265,7 @@ if [ "$MCP_TRANSPORT" = "http" ]; then
             sudo cp /tmp/hubitat-mcp.service /etc/systemd/system/hubitat-mcp.service
             sudo systemctl daemon-reload
             sudo systemctl enable hubitat-mcp
-            sudo systemctl start hubitat-mcp
+            sudo systemctl restart hubitat-mcp
             SERVICE_INSTALLED="systemd"
             print_step "Systemd service installed and started"
         fi
