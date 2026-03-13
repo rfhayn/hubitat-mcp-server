@@ -230,6 +230,8 @@ ENVEOF
 
 print_step ".env configured"
 
+SERVICE_INSTALLED=""
+
 # ─── System Service ──────────────────────────────────
 if [ "$MCP_TRANSPORT" = "http" ]; then
     print_header "System Service (Auto-Start)"
@@ -245,6 +247,7 @@ if [ "$MCP_TRANSPORT" = "http" ]; then
             if [ -f "com.hubitat-mcp.plist" ]; then
                 cp com.hubitat-mcp.plist ~/Library/LaunchAgents/
                 launchctl load ~/Library/LaunchAgents/com.hubitat-mcp.plist 2>/dev/null || true
+                SERVICE_INSTALLED="launchd"
                 print_step "Launchd service installed"
             else
                 print_warn "Launchd template not found. Start manually with: npm start"
@@ -262,6 +265,7 @@ if [ "$MCP_TRANSPORT" = "http" ]; then
             sudo systemctl daemon-reload
             sudo systemctl enable hubitat-mcp
             sudo systemctl start hubitat-mcp
+            SERVICE_INSTALLED="systemd"
             print_step "Systemd service installed and started"
         fi
     fi
@@ -359,7 +363,16 @@ elif [ "$MCP_TRANSPORT" = "http" ]; then
 fi
 
 echo ""
-echo "  Start the server:"
-echo "    npm start"
+if [ "$SERVICE_INSTALLED" = "systemd" ]; then
+    echo "  The server is running as a systemd service."
+    echo "    sudo systemctl status hubitat-mcp    # check status"
+    echo "    sudo journalctl -u hubitat-mcp -f    # view logs"
+elif [ "$SERVICE_INSTALLED" = "launchd" ]; then
+    echo "  The server is running as a launchd service."
+    echo "    tail -f ${SCRIPT_DIR}/logs/stdout.log    # view logs"
+else
+    echo "  Start the server:"
+    echo "    npm start"
+fi
 echo ""
 echo "═══════════════════════════════════════════════════"
