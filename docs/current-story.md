@@ -1,22 +1,22 @@
 # Current Story
 
-**Last Updated**: March 12, 2026
-**Active Milestone**: None — preparing for Raspberry Pi production install test
+**Last Updated**: March 13, 2026
+**Active Milestone**: None — project is production-deployed
 
 ---
 
 ## Status
 
-M1 and M2 complete. Setup deployment guidance (M1.2) added. Ready for first production install on Raspberry Pi.
+All milestones complete. Server running on Raspberry Pi with systemd auto-start and ngrok tunnel. Accessible from Claude Code CLI, Claude.ai, and Claude mobile.
 
 ## Completed
 
 | Milestone | Scope | Status |
 |-----------|-------|--------|
 | M1.1 | Full MCP server — all tools, resources, transports, ngrok, setup script, CLI, README | COMPLETE |
-| M1.2 | Setup deployment guidance + systemd/launchd production fixes | COMPLETE |
+| M1.2 | Setup deployment guidance, Pi install fixes, idempotent re-runs, README improvements | COMPLETE |
 | M2 | Device cache, bulk query tools, retry logic | COMPLETE |
 
 ## Next
 
-Production install test on Raspberry Pi, then M3 (event streaming).
+Monitor Pi stability. M3 (event streaming) is deprioritized — current polling approach is sufficient for conversational use.
