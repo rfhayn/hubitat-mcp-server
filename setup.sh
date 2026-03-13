@@ -104,36 +104,49 @@ echo "    App ID    — the number after /apps/api/ in any endpoint URL"
 echo "    Token     — the value after access_token= in any endpoint URL"
 echo ""
 
-print_prompt "Hubitat hub IP address: "
-read -r HUBITAT_HOST
+while true; do
+    print_prompt "Hubitat hub IP address: "
+    read -r HUBITAT_HOST
 
-print_prompt "Maker API App ID: "
-read -r HUBITAT_APP_ID
+    print_prompt "Maker API App ID: "
+    read -r HUBITAT_APP_ID
 
-print_prompt "Maker API Access Token: "
-read -rs HUBITAT_ACCESS_TOKEN
-echo ""
+    print_prompt "Maker API Access Token: "
+    read -rs HUBITAT_ACCESS_TOKEN
+    echo ""
 
-# ─── Test Hubitat Connection ─────────────────────────
-echo ""
-echo "Testing connection to Hubitat..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-    "http://${HUBITAT_HOST}/apps/api/${HUBITAT_APP_ID}/devices?access_token=${HUBITAT_ACCESS_TOKEN}" \
-    --connect-timeout 5 2>/dev/null || echo "000")
-
-if [ "$HTTP_CODE" = "200" ]; then
-    DEVICE_COUNT=$(curl -s \
+    # ─── Test Hubitat Connection ─────────────────────────
+    echo ""
+    echo "Testing connection to Hubitat..."
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
         "http://${HUBITAT_HOST}/apps/api/${HUBITAT_APP_ID}/devices?access_token=${HUBITAT_ACCESS_TOKEN}" \
-        --connect-timeout 5 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
-    print_step "Connected to Hubitat — found ${DEVICE_COUNT} devices"
-else
-    print_warn "Could not connect to Hubitat (HTTP ${HTTP_CODE}). Check your credentials."
-    print_prompt "Continue anyway? [y/N]: "
-    read -r CONTINUE
-    if [[ ! "$CONTINUE" =~ ^[Yy]$ ]]; then
+        --connect-timeout 5 2>/dev/null || echo "000")
+
+    if [ "$HTTP_CODE" = "200" ]; then
+        DEVICE_COUNT=$(curl -s \
+            "http://${HUBITAT_HOST}/apps/api/${HUBITAT_APP_ID}/devices?access_token=${HUBITAT_ACCESS_TOKEN}" \
+            --connect-timeout 5 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
+        print_step "Connected to Hubitat — found ${DEVICE_COUNT} devices"
+        break
+    fi
+
+    if [ "$HTTP_CODE" = "000" ]; then
+        print_error "Could not reach ${HUBITAT_HOST} — check the IP address and network."
+    elif [ "$HTTP_CODE" = "401" ]; then
+        print_error "Authentication failed (HTTP 401) — check App ID and Access Token."
+    else
+        print_error "Unexpected response (HTTP ${HTTP_CODE})."
+    fi
+
+    echo ""
+    print_prompt "Try again? [Y/n]: "
+    read -r RETRY
+    RETRY=${RETRY:-Y}
+    if [[ ! "$RETRY" =~ ^[Yy]$ ]]; then
         exit 1
     fi
-fi
+    echo ""
+done
 
 # ─── Transport ────────────────────────────────────────
 print_header "Transport Configuration"
